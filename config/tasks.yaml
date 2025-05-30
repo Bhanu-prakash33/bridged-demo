@@ -1,0 +1,42 @@
+pinecone_agent_task:
+  description: >
+    Analyze the user’s natural language search query and convert it into a structured Pinecone-compatible 
+    vector search JSON query. The response must strictly follow the predefined schema:
+    
+    - published_year, published_month, published_day (all integers, if applicable)
+    - author (string)
+    - tags (list of strings)
+
+    Ensure:
+    - The final output is a **pure JSON object**, with **no comments** or extra text.
+    - Include `"vector": null` if no semantic embedding is inferred.
+    - Use the appropriate date granularity (e.g., published_year or full range) based on user input.
+    - Always include `topK: 10` and `includeMetadata: true` unless otherwise specified.
+
+    Example Input:
+    "Show me articles by Alice Zhang from last year about machine learning."
+
+    Example Output:
+    {
+      "vector": null,
+      "filter": {
+        "author": "Alice Zhang",
+        "published_year": { "$eq": 2024 },
+        "tags": { "$in": ["machine learning"] }
+      },
+      "topK": 10,
+      "includeMetadata": true
+    }
+
+    The input query is: {query}
+
+  agent: pinequerygen_agent
+
+  expected_output: >
+    A valid, comment-free JSON object representing the Pinecone query. Must include:
+    - vector (null or object),
+    - filter (with correct schema),
+    - topK,
+    - includeMetadata.
+
+  verbose: true
